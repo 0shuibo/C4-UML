@@ -1,0 +1,37 @@
+@startuml 资产调拨管理
+!include ../C4_Component.puml
+
+LAYOUT_TOP_DOWN()
+SHOW_PERSON_OUTLINE()
+
+title energy hub 资产调拨管理
+
+Person(user, 使用人员, "Energy Hub 用户")
+
+System_Ext(xiot, "xiot", "xiot平台系统")
+
+Container_Boundary(ehUi, "Energy Hub UI") {
+    Component(transferTicketUi, "eh.m.transferTicket", "UI Module", "设备调拨单")
+}
+
+Container_Boundary(ehBff, "Energy Hub BFF Container") {
+    Component(transferTicketBff, "Transfer Ticket DataSource", "BFF DataSource", "设备调拨单相关功能")
+    Component(hierarchyBff, "Hierarchy DataSource", "BFF DataSourcer", "层级管理相关功能")
+}
+
+Container_Boundary(ehSystem, "Energy Hub System Container") {
+    Component(hierarchy, "Hierarchy Controller", "MVC Rest Controller", "层级管理相关功能")
+}
+
+Container_Ext(compTicket, "Comp Ticket", "Java, SpringBoot", "工单模块")
+
+Rel(user, transferTicketUi, "创建/查询调拨单")
+
+Rel(transferTicketUi, transferTicketBff, "创建/查询", "JSON/HTTPS")
+Rel(transferTicketUi, hierarchyBff, "获得层级信息", "JSON/HTTPS")
+
+Rel(transferTicketBff, compTicket, "创建/查询", "JSON/HTTP")
+Rel(hierarchyBff, hierarchy, "获得层级信息", "JSON/HTTP")
+Rel(hierarchy, xiot, "获得层级信息", "JSON/HTTP")
+
+@enduml

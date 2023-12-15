@@ -1,0 +1,75 @@
+@startuml energy_hub_system
+!include ../C4_Context.puml
+
+LAYOUT_TOP_DOWN()
+SHOW_PERSON_OUTLINE()
+
+title EcoStruxure Microgrid Advisor
+
+Person(customer, Users, "ema 用户")
+
+Boundary(platformSystem, "Platform Context") {
+    System_Ext(atlas, "Atlas", "网关管理")
+    System_Ext(guard, "Guard", "登陆和登出")
+    System_Ext(oceanBase, "OceanBase", "用户权限管理")
+    System_Ext(fort, "Fort", "网关管理")
+    System_Ext(ant, "Ant", "数据点管理")
+    System_Ext(hardcore, "Hardcore", "数据管理")
+}
+
+System(ema, "ema", "ema system")
+
+Boundary(compSystem, "Comp Context") {
+    System_Ext(fork, "Fork", "消息推送服务")
+    System_Ext(abtree, "Abtree", "点位关系管理")
+    System_Ext(cuckoo, "Cuckoo", "调度系统")
+    System_Ext(vee, "Vee", "数据质量控制")
+}
+
+Boundary(compSystem, "common service") {
+    System_Ext(fork, "Fork", "消息推送服务")
+    System_Ext(abtree, "Abtree", "点位关系管理")
+    System_Ext(cuckoo, "Cuckoo", "调度系统")
+}
+
+Boundary(AI&BD, "AI&BD") {
+     System_Ext(athena, "Athena", "算法服务")
+     System_Ext(indie2, "Indie2", "计算服务")
+}
+
+
+
+Boundary(thirdPartySystem, "Third-party Context") {
+    System_Ext(gis, "高德地图", "用户获取地图信息")
+}
+Rel_D(customer,ema,"call", "JSON/HTTP")
+
+Rel_U(ema,fork,"call", "JSON/HTTP")
+Rel_U(ema,abtree,"call", "JSON/HTTP")
+Rel_U(cuckoo,ema,"call", "JSON/HTTP")
+Rel_U(ema,vee,"call", "JSON/HTTP")
+
+Rel_R(ema,gis,"call", "JSON/HTTP")
+
+Rel_U(indie2,ema,"call", "JSON/HTTP")
+Rel_U(indie2,athena,"call", "JSON/HTTP")
+
+
+Rel_D(ema,atlas,"call", "JSON/HTTP")
+Rel_D(ema,guard,"call", "JSON/HTTP")
+Rel_D(ema,oceanBase,"call", "JSON/HTTP")
+Rel_D(ema,fort,"call", "JSON/HTTP")
+Rel_D(ema,ant,"call", "JSON/HTTP")
+Rel_D(ema,hardcore,"call", "JSON/HTTP")
+
+
+
+
+
+
+
+
+
+
+
+@enduml

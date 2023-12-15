@@ -1,0 +1,53 @@
+@startuml energy_hub_system
+!include ../C4_Context.puml
+
+LAYOUT_TOP_DOWN()
+SHOW_PERSON_OUTLINE()
+
+title energy hub context
+
+Person(customer, Users, "Energy Hub 用户")
+
+System_Ext(baCode, "ba core", "用来提供智能诊断相关功能, 只是一个临时解决方案, 后面EH自己会进行实现", "", "temporary")
+
+Boundary(platformSystem, "Platform Context") {
+    System_Ext(atlas, "atlas", "网关型号 网关版本 网关授权 管理系统")
+    System_Ext(guard, "guard", "登陆和登出系统")
+    System_Ext(xiot, "xiot", "xiot平台系统")
+
+    Rel(customer, atlas, "Uses")
+    Rel(customer, guard, "Uses")
+    Rel(customer, xiot, "Uses")
+}
+
+System(energyHub, "energy hub", "energy hub system")
+Rel(customer, energyHub, "Uses")
+
+Boundary(compSystem, "Comp Context") {
+    System_Ext(compTicket, "comp ticket", "诊断工单 盘点工单 异常行为工单 调拨工单 报废工单")
+    System_Ext(compVee, "comp vee", "数据质量配置 数据质量看板")
+    System_Ext(compAuth, "comp auth", "用户管理 角色管理 功能权限 数据权限")
+    System_Ext(carbonAuth, "comp carbon", "排放源配置 活动数据采集 碳排查")
+
+    Rel(customer, compTicket, "Uses")
+    Rel(customer, compVee, "Uses")
+    Rel(customer, compAuth, "Uses")
+    Rel(customer, carbonAuth, "Uses")
+}
+
+Boundary(thirdPartySystem, "Third-party Context") {
+    System_Ext(gis, "高德地图", "用户获取地图信息")
+}
+
+Rel(compTicket, energyHub, "call", "JSON/HTTP")
+Rel(compVee, energyHub, "call", "JSON/HTTP")
+
+
+Rel(energyHub, xiot, "call", "JSON/HTTP")
+Rel(energyHub, baCode, "call", "JSON/HTTP")
+
+Rel(energyHub, gis, "call", "JSON/HTTPS")
+
+'Rel(energyHub, compTicket, "call", "JSON/HTTP")
+
+@enduml

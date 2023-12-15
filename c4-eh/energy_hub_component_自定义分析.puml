@@ -1,0 +1,58 @@
+@startuml 自定义分析
+!include ../C4_Component.puml
+
+LAYOUT_TOP_DOWN()
+SHOW_PERSON_OUTLINE()
+
+title energy hub 自定义分析
+
+Person(user1, 配置人员, "Energy Hub 用户")
+Person(user2, 使用人员, "Energy Hub 用户")
+
+System_Ext(xiot, "xiot", "xiot平台系统")
+
+Container_Boundary(ehUi, "Energy Hub UI") {
+    Component(dashboardDesignUi, "eh.m.dashboardDesign", "UI Module", "自定义分析配置功能")
+    Component(dashboardPreviewUi, "eh.m.dashboardPreview", "UI Module", "自定义分析展示功能")
+}
+
+Container_Boundary(ehBff, "Energy Hub BFF Container") {
+    Component(dashboardBff, "Dashboard DataSource", "BFF DataSource", "自定义分析相关功能")
+    Component(hierarchyBff, "Hierarchy DataSource", "BFF DataSourcer", "层级管理相关功能")
+    Component(tagBff, "Tag DataSource", "BFF DataSourcer", "数据点相关功能")
+}
+
+
+Container_Boundary(ehEnergy, "Energy Hub Energy Container") {
+    Component(dashboard, "Dashboard Controller", "MVC Rest Controller", "自定义看板Dashboard相关功能")
+    Component(card, "Card Controller", "MVC Rest Controller", "自定义看板Card相关功能")
+}
+
+Container_Boundary(ehSystem, "Energy Hub System Container") {
+    Component(hierarchy, "Hierarchy Controller", "MVC Rest Controller", "层级管理相关功能")
+    Component(tag, "Tag Controller", "MVC Rest Controller", "数据点管理相关功能")
+}
+
+ContainerDb(db, "energy_hub", "pgsql", "energy hub 数据库")
+
+Rel_D(user1, dashboardDesignUi, "自定义分析看板配置", "")
+Rel_D(user2, dashboardPreviewUi, "展示自定义分析看板", "")
+
+Rel_D(dashboardDesignUi, hierarchyBff, "获得层级信息", "JSON/HTTPS")
+Rel_D(dashboardPreviewUi, hierarchyBff, "获得层级信息", "JSON/HTTPS")
+Rel_D(hierarchyBff, hierarchy, "获得层级信息", "JSON/HTTP")
+Rel_D(hierarchy, xiot, "获得层级信息", "JSON/HTTP")
+
+Rel_D(dashboardDesignUi, tagBff, "获得数据点和数据", "JSON/HTTPS")
+Rel_D(dashboardPreviewUi, tagBff, "获得数据点和数据", "JSON/HTTPS")
+Rel_D(tagBff, tag, "获得数据点和数据", "JSON/HTTP")
+Rel_D(tag, xiot, "获得数据点和数据", "JSON/HTTP")
+
+Rel_D(dashboardDesignUi, dashboardBff, "配置看板和卡片信息", "JSON/HTTPS")
+Rel_D(dashboardPreviewUi, dashboardBff, "展示看板和卡片信息", "JSON/HTTPS")
+Rel_D(dashboardBff, dashboard, "配置/查看看板信息", "JSON/HTTP")
+Rel_D(dashboardBff, card, "配置/查看卡片信息", "JSON/HTTP")
+Rel_D(dashboard, db, "读取/保存看板数据", "JDBC")
+Rel_D(card, db, "读取/保存卡片数据", "JDBC")
+
+@enduml

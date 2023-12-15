@@ -1,0 +1,75 @@
+@startuml energy_hub_container
+!include ../C4_Container.puml
+
+LAYOUT_TOP_DOWN()
+SHOW_PERSON_OUTLINE()
+
+title energy hub container
+
+Person(customer, Users, "Energy Hub 用户")
+
+System_Ext(baCode, "ba core", "用来提供智能诊断相关功能, 只是一个临时解决方案, 后面EH自己会进行实现", "", "temporary")
+
+Boundary(thirdPartySystem, "Third-party Context") {
+    System_Ext(gis, "高德地图", "用户获取地图信息")
+}
+
+Boundary(platformSystem, "Platform Context") {
+    System_Ext(guard, "guard", "登陆和登出系统")
+    System_Ext(atlas, "atlas", "网关型号 网关版本 网关授权 管理系统")
+    System_Ext(xiot, "xiot", "xiot平台系统")
+
+    Rel(customer, guard, "Uses")
+    Rel(customer, atlas, "Uses")
+    Rel(customer, xiot, "Uses")
+}
+
+System_Boundary(eha, "Energy Hub System") {
+    Container(ehUi, "EH UI", "Javascript, React", "Energy Hub web端应用程序")
+    Container(ehMobile, "EH Mobile", "React Native", "Energy Hub 移动端应用程序")
+    Container(ehBff, "EH BFF", "Nodejs", "Energy Hub BFF 应用程序")
+    Container(ehAsset, "EH Asset", "Java, SpringBoot", "Energy Hub 资产运维应用程序")
+    Container(ehSystem, "EH System", "Java, SpringBoot", "Energy Hub 基础功能应用程序")
+    Container(ehEnergy, "EH Energy", "Java, SpringBoot", "Energy Hub 能源管理应用程序")
+    ContainerDb(ehDb, "EH DB", "pgsql", "Energy Hub 数据库")
+
+    Rel(customer, ehUi, "Uses")
+    Rel(customer, ehMobile, "Uses")
+    Rel_D(ehUi, gis, "call", "JSON/HTTPS")
+    Rel_D(ehBff, baCode, "call", "JSON/HTTP")
+    Rel(ehUi, ehBff, "call", "JSON/HTTPS")
+    ' Rel_D(ehUi, xiot, "Uses", "JSON/HTTP")
+    Rel(ehMobile, ehBff, "call", "JSON/HTTPS")
+
+    Rel(ehBff, ehAsset, "call", "JSON/HTTP")
+    Rel(ehBff, ehSystem, "call", "JSON/HTTP")
+    Rel(ehBff, ehEnergy, "call", "JSON/HTTP")
+
+    Rel(ehAsset, ehDb, "call", "JDBC")
+    Rel(ehSystem, ehDb, "call", "JDBC")
+    Rel(ehEnergy, ehDb, "call", "JDBC")
+}
+
+Boundary(compSystem, "Comp Context") {
+    System_Ext(compTicket, "comp ticket", "诊断工单 盘点工单 异常行为工单 调拨工单 报废工单")
+    System_Ext(compVee, "comp vee", "数据质量配置 数据质量看板")
+    System_Ext(compAuth, "comp auth", "用户管理 角色管理 功能权限 数据权限")
+    System_Ext(carbonAuth, "comp carbon", "排放源配置 活动数据采集 碳排查")
+
+    Rel(customer, compTicket, "Uses")
+    Rel(customer, compVee, "Uses")
+    Rel(customer, compAuth, "Uses")
+    Rel(customer, carbonAuth, "Uses")
+}
+
+
+' user -> web
+
+Rel(ehAsset, xiot, "call", "JSON/HTTP")
+Rel(ehSystem, xiot, "call", "JSON/HTTP")
+Rel(ehEnergy, xiot, "call", "JSON/HTTP")
+
+Rel(compTicket, ehSystem, "call", "JSON/HTTP")
+Rel(compVee, ehSystem, "call", "JSON/HTTP")
+
+@enduml

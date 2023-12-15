@@ -1,0 +1,56 @@
+@startuml 设备行为分析
+!include ../C4_Component.puml
+
+LAYOUT_TOP_DOWN()
+SHOW_PERSON_OUTLINE()
+
+title energy hub 设备行为分析
+
+Person(user1, 配置人员, "Energy Hub 用户")
+Person(user2, 使用人员, "Energy Hub 用户")
+
+System_Ext(xiot, "xiot", "xiot平台系统")
+System_Ext(cuckoo, "cuckoo", "调度系统")
+ContainerDb(db, "energy_hub", "pgsql", "energy hub 数据库")
+
+Container_Boundary(ehUi, "Energy Hub UI") {
+    Component(behaviorStrategyUi, "eh.m.behaviorStrategy", "UI Module", "设备行为策略定义")
+    Component(behaviorDashboardUi, "eh.m.behaviorDashboard", "UI Module", "门店行为异常概览")
+}
+
+Container_Boundary(ehBff, "Energy Hub BFF Container") {
+    Component(behaviorStrategyBff, "Behavior Strategy DataSource", "BFF DataSource", "设备行为策略相关功能")
+    Component(behaviorDashboardBff, "Behavior Dashboard DataSource", "BFF DataSource", "门店行为异常概览相关功能")
+    Component(hierarchyBff, "Hierarchy DataSource", "BFF DataSourcer", "层级管理相关功能")
+}
+
+Container_Boundary(ehSystem, "Energy Hub Energy Container") {
+    Component(strategy, "Strategy Controller", "MVC Rest Controller", "设备策略相关功能")
+    Component(diagnosis, "Diagnosis Controller", "MVC Rest Controller", "行为异常诊断相关功能")
+    Component(hierarchy, "Hierarchy Controller", "MVC Rest Controller", "层级管理相关功能")
+}
+
+Rel_D(user1, behaviorStrategyUi, "配置设备的运行策略", "")
+Rel_D(user2, behaviorDashboardUi, "查看门店行为异常概览", "")
+
+Rel_D(behaviorStrategyUi, behaviorStrategyBff, "call", "JSON/HTTP")
+Rel_D(behaviorStrategyUi, hierarchyBff, "call", "JSON/HTTP")
+Rel_D(behaviorDashboardUi, behaviorDashboardBff, "call", "JSON/HTTP")
+Rel_D(behaviorDashboardUi, hierarchyBff, "call", "JSON/HTTP")
+
+Rel_D(behaviorStrategyBff, strategy, "call", "JSON/HTTP")
+Rel_D(behaviorDashboardBff, diagnosis, "call", "JSON/HTTP")
+
+Rel(hierarchyBff, hierarchy, "call", "JSON/HTTP")
+
+Rel(strategy, db, "call", "JDBC")
+Rel(diagnosis, db, "call", "JDBC")
+
+Rel(strategy, xiot, "call", "JSON/HTTP")
+Rel(diagnosis, xiot, "call", "JSON/HTTP")
+Rel(hierarchy, xiot, "call", "JSON/HTTP")
+
+Rel(cuckoo, strategy, "每15min调用", "JSON/HTTP")
+Rel(cuckoo, diagnosis, "每15min调用", "JSON/HTTP")
+
+@enduml

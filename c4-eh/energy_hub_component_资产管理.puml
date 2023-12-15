@@ -1,0 +1,57 @@
+@startuml 资产管理
+!include ../C4_Component.puml
+
+LAYOUT_TOP_DOWN()
+SHOW_PERSON_OUTLINE()
+
+title energy hub 资产管理
+
+Person(user, 使用人员, "Energy Hub 用户")
+
+System_Ext(xiot, "xiot", "xiot平台系统")
+
+Container_Boundary(ehUi, "Energy Hub UI") {
+    Component(ledgerUi, "eh.m.ledger", "UI Module", "设备台账")
+}
+
+Container_Boundary(compTicketUi, "Comp Ticket UI") {
+    Component_Ext(ticketUi, "comp-ticket.m.ticket", "UI Module", "运维记录")
+}
+
+Container_Boundary(ehBff, "Energy Hub BFF Container") {
+    Component(hierarchyBff, "Hierarchy DataSource", "BFF DataSource", "层级管理相关功能")
+    Component(deviceBff, "Device DataSource", "BFF DataSource", "设备管理相关功能")
+    Component(alarmBff, "Alarm DataSource", "BFF DataSource", "报警相关功能")
+}
+
+Container_Boundary(compTicketBff, "Comp Ticket BFF Container") {
+    Component_Ext(ticketBff, "Comp Ticket DataSource", "BFF DataSourcer", "工单管理相关功能")
+}
+
+Container_Boundary(ehSystem, "Energy Hub System Container") {
+    Component(hierarchy, "Hierarchy Controller", "MVC Rest Controller", "层级相关功能")
+    Component(device, "Device Controller", "MVC Rest Controller", "设备相关功能")
+    Component(alarm, "Alarm Controller", "MVC Rest Controller", "报警相关功能")
+}
+
+ContainerDb(db, "energy_hub", "pgsql", "energy hub 数据库")
+
+Rel_D(user, ledgerUi, "查看设备台账", "")
+Rel_D(user, ticketUi, "设备运维记录", "")
+
+Rel_D(ledgerUi, hierarchyBff, "call", "JSON/HTTP")
+Rel_D(ledgerUi, deviceBff, "call", "JSON/HTTP")
+Rel_D(ledgerUi, alarmBff, "call", "JSON/HTTP")
+
+Rel_D(ticketUi, ticketBff, "call", "JSON/HTTP")
+
+Rel_D(hierarchyBff, hierarchy, "call", "JSON/HTTP")
+Rel_D(deviceBff, device, "call", "JSON/HTTP")
+Rel_D(alarmBff, alarm, "call", "JSON/HTTP")
+
+Rel_D(hierarchy, xiot, "call", "JSON/HTTP")
+Rel_D(device, xiot, "call", "JSON/HTTP")
+Rel_D(device, db, "call", "JSON/HTTP")
+Rel_D(alarm, xiot, "call", "JSON/HTTP")
+
+@enduml

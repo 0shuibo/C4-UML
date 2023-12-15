@@ -1,0 +1,70 @@
+@startuml 设备智能诊断
+!include ../C4_Dynamic.puml
+
+LAYOUT_TOP_DOWN()
+SHOW_PERSON_OUTLINE()
+
+title energy hub 设备智能诊断
+
+Person(user, 门店运营人员, "Energy Hub 用户")
+
+System_Ext(cuckoo, "cuckoo", "调度系统")
+ContainerDb(db, "energy_hub", "pgsql", "energy hub 数据库")
+
+Container_Boundary(ehUi, "Energy Hub UI") {
+    Component(autoCheckPointUi, "eh.m.autoCheckPoint", "UI Module", "自动盘点")
+    Component(ticketUi, "eh.m.ticket", "UI Module", "工单")
+}
+
+Container_Boundary(ehBff, "Energy Hub BFF Container") {
+    Component(autoCheckPointBff, "AntoCheckPoint DataSource", "BFF DataSource", "自动盘点相关功能")
+    Component(ticketBff, "Ticket DataSource", "BFF DataSource", "工单相关功能")
+}
+
+Container_Boundary(ehAsset, "Energy Hub Asset Container") {
+    Component(autoCheckPoint, "AntoCheckPoint Controller", "MVC Rest Controller", "自动盘点相关功能")
+}
+
+Container_Ext(compTicket, "Comp Ticket", "Java, SpringBoot", "工单模块")
+
+!$COLOR_REL_LINE = "#8073ac"
+!$COLOR_REL_TEXT = "#8073ac"
+UpdateRelStyle($lineColor=$COLOR_REL_LINE, $textColor=$COLOR_REL_TEXT)
+
+Rel(cuckoo, autoCheckPoint, "每天0点调用对设备进行盘点", "JSON/HTTP")
+Rel(autoCheckPoint, db, "保存盘点结果信息", "JDBC")
+
+!$COLOR_REL_LINE = "#e08214"
+!$COLOR_REL_TEXT = "#e08214"
+UpdateRelStyle($lineColor=$COLOR_REL_LINE, $textColor=$COLOR_REL_TEXT)
+
+Rel(user, autoCheckPointUi, "查看自动盘点界面")
+Rel(autoCheckPointUi, autoCheckPointBff, "获得盘点结果信息", "JSON/HTTPS")
+Rel(autoCheckPointBff, autoCheckPoint, "获得盘点结果信息", "JSON/HTTP")
+Rel(autoCheckPoint, db, "读取盘点结果信息", "JDBC")
+
+!$COLOR_REL_LINE = "#237804"
+!$COLOR_REL_TEXT = "#237804"
+UpdateRelStyle($lineColor=$COLOR_REL_LINE, $textColor=$COLOR_REL_TEXT)
+
+Rel(user, ticketUi, "选择门店创建自动盘点任务")
+Rel(ticketUi, ticketBff, "创建自动盘点工单", "JSON/HTTPS")
+Rel(ticketBff, compTicket, "创建自动盘点工单", "JSON/HTTP")
+
+!$COLOR_REL_LINE = "#096dd9"
+!$COLOR_REL_TEXT = "#096dd9"
+UpdateRelStyle($lineColor=$COLOR_REL_LINE, $textColor=$COLOR_REL_TEXT)
+
+Rel(user, ticketUi, "查看盘点任务列表")
+Rel(ticketUi, ticketBff, "查看盘点任务列表", "JSON/HTTPS")
+Rel(ticketBff, compTicket, "查看盘点任务列表", "JSON/HTTP")
+
+!$COLOR_REL_LINE = "#c41d7f"
+!$COLOR_REL_TEXT = "#c41d7f"
+UpdateRelStyle($lineColor=$COLOR_REL_LINE, $textColor=$COLOR_REL_TEXT)
+
+Rel(user, ticketUi, "创建手动盘点任务")
+Rel(ticketUi, ticketBff, "创建手动盘点工单", "JSON/HTTPS")
+Rel(ticketBff, compTicket, "创建手动盘点工单", "JSON/HTTP")
+
+@enduml
