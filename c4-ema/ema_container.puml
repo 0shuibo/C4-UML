@@ -50,7 +50,7 @@ Boundary(compSystem, "Comp Context") {
     Rel_U(ema,fork,"call", "JSON/HTTP")
     Rel_U(ema,abtree,"call", "JSON/HTTP")
     Rel_U(cuckoo,ema,"call", "JSON/HTTP")
-    Rel_U(ema,vee,"call", "JSON/HTTP")
+    ' Rel_U(ema,vee,"call", "JSON/HTTP")
 }
 
 
@@ -65,7 +65,6 @@ Boundary(AI&BD, "AI&BD") {
 Boundary(middleware, "middleware") {
     ContainerQueue(rabbitMq, "RabbitMq", "消息中间件")
     Rel_L(rabbitMq,ema,"call", "JSON/HTTP")
-
 }
 
 

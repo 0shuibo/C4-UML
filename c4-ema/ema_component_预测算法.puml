@@ -4,7 +4,7 @@
 LAYOUT_TOP_DOWN()
 SHOW_PERSON_OUTLINE()
 
-title Ema 预测算法实现过程
+title Ema 调度算法实现过程
 ' 预测算法相关内容
 Container(cuckoo, "Cuckoo Container","调度模块")
 

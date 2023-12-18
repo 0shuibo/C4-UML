@@ -10,7 +10,7 @@ Person(customer, Users, "ema 用户")
 
 Boundary(platformSystem, "Platform Context") {
     System_Ext(atlas, "Atlas", "网关管理")
-    System_Ext(guard, "Guard", "登陆和登出")
+    System_Ext(guard, "Guard", "登录和登出")
     System_Ext(oceanBase, "OceanBase", "用户权限管理")
     System_Ext(fort, "Fort", "网关管理")
     System_Ext(ant, "Ant", "数据点管理")
@@ -38,17 +38,20 @@ Boundary(AI&BD, "AI&BD") {
 }
 
 
-
 Boundary(thirdPartySystem, "Third-party Context") {
     System_Ext(gis, "高德地图", "用户获取地图信息")
+    System_Ext(oss, "文件管理", "阿里文件存储系统")
 }
-Rel_U(customer,ema,"call", "JSON/HTTP")
+
+Rel_D(customer,ema,"call", "JSON/HTTP")
+
 Rel_U(ema,fork,"call", "JSON/HTTP")
 Rel_U(ema,abtree,"call", "JSON/HTTP")
 Rel_U(cuckoo,ema,"call", "JSON/HTTP")
 Rel_U(ema,vee,"call", "JSON/HTTP")
 
-Rel_U(ema,gis,"call", "JSON/HTTP")
+Rel_R(ema,gis,"call", "JSON/HTTP")
+Rel_R(ema,oss,"call", "JSON/HTTP")
 
 Rel_U(indie2,ema,"call", "JSON/HTTP")
 Rel_U(indie2,athena,"call", "JSON/HTTP")
