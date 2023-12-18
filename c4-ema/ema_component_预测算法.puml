@@ -90,13 +90,13 @@ Rel_D(DerModule,abtree,"保存点位数据","")
 
 
 
+' 点位模板配置
+Person(developer, "Developer", "产品&开发工程师")
 
+Component(tagBuilder, "Tag Builder", "点位模板工具")
 
-
-
-
-
-
+Rel_D(developer,tagBuilder,"维护点位模板和公式","")
+Rel_D(tagBuilder,emaDb,"维护点位模板和公式","")
 
 
 
