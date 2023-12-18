@@ -8,22 +8,26 @@ title EcoStruxure Microgrid Advisor
 
 Person(customer, Users, "ema 用户")
 
-System_Boundary(emaSystem, "ema Context") {
+System_Boundary(emaSystem, "Ema Context") {
     Container(emaUI, "EmaUI", "ema前端服务")
     Container(ema, "Ema", "ema后端服务")
     Container(AuthUI, "AuthUI", "ema权限管理前端服务")
     Container(userAuth, "UserAuth", "ema权限管理后端服务")
     Container(veeUi, "VeeUi", "数据质量管理UI")
+    Container(emaGateway, "EmaGateway", "ema 网关服务")
 
-    Rel_D(emaUI,ema,"call", "JSON/HTTP")
-    Rel_D(AuthUI,userAuth,"call", "JSON/HTTP")
-    Rel_L(userAuth,ema,"call", "JSON/HTTP")
+    Rel_D(emaUI,emaGateway,"call", "JSON/HTTP")
+    Rel_D(emaGateway,ema,"call", "JSON/HTTP")
+    Rel_D(AuthUI,emaGateway,"call", "JSON/HTTP")
+    Rel_D(emaGateway,userAuth,"call", "JSON/HTTP")
+    Rel_L(userAuth,emaGateway,"call", "JSON/HTTP")
+    Rel_D(emaGateway,ema,"call", "JSON/HTTP")
 }
 
 
 Boundary(platformSystem, "Platform Context") {
     System_Ext(atlas, "Atlas", "网关管理")
-    System_Ext(guard, "Guard", "登陆和登出")
+    System_Ext(guard, "Guard", "登录和登出")
     System_Ext(oceanBase, "OceanBase", "用户权限管理")
     System_Ext(fort, "Fort", "网关管理")
     System_Ext(ant, "Ant", "数据点管理")
@@ -59,21 +63,35 @@ Boundary(AI&BD, "AI&BD") {
 }
 
 Boundary(middleware, "middleware") {
-    Container(redis, "Redis", "缓存服务")
     ContainerQueue(rabbitMq, "RabbitMq", "消息中间件")
-
     Rel_L(rabbitMq,ema,"call", "JSON/HTTP")
-    Rel_L(redis,ema,"call", "JSON/HTTP")
-    Rel_L(redis,userAuth,"call", "JSON/HTTP")
+
 }
 
 
 Boundary(thirdPartySystem, "Third-party Context") {
     System_Ext(gis, "高德地图", "用户获取地图信息")
     System_Ext(oss, "文件管理", "阿里文件存储系统")
-    Rel_R(ema,gis,"call", "JSON/HTTP")
+    Rel_R(emaUI,gis,"call", "JSON/HTTP")
     Rel_R(userAuth,oss,"call", "JSON/HTTP")
 }
+
+Boundary(emaDatabase, "Database") {
+    ContainerDb(emaForecast, "ema forecast", "pgsql", "ema 预测配置数据库")
+    ContainerDb(emaDb, "ema", "pgsql", "ema 主数据库")
+    ContainerDb(energymostDb, "Energymost Database", "sqlserver", "ema 预测配置数据库")
+    ContainerDb(calendar, "Calendar", "日历数据库")
+    ContainerDb(redis, "Redis", "ema 缓存数据库")
+    Rel_D(ema,redis,"call", "JSON/HTTP")
+    Rel_D(userAuth,redis,"call", "JSON/HTTP")
+    Rel_D(ema,emaDb,"call", "JSON/HTTP")
+    Rel_D(ema,calendar,"call", "JSON/HTTP")
+    Rel_D(ema,emaForecast,"call", "JSON/HTTP")
+    Rel_D(ema,energymostDb,"call", "JSON/HTTP")
+
+}
+
+
 Rel_D(customer,ema,"call", "JSON/HTTP")
 
 

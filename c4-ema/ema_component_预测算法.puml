@@ -1,0 +1,103 @@
+@startuml 设备台账
+!include ../C4_Component.puml
+
+LAYOUT_TOP_DOWN()
+SHOW_PERSON_OUTLINE()
+
+title Ema 预测算法实现过程
+' 预测算法相关内容
+Container(cuckoo, "Cuckoo Container","调度模块")
+
+Container(emaGateway, "Ema gateway","网关")
+
+Container_Boundary(ema, "Ema Container") {
+    Component(emaControl, "Control Controller", "设备下控相关功能")
+    Component(topicReceiver, "Topic Receiver", "下控记录状态变更功能")
+    Component(configModule, "Config Controller", "充电桩配置查询功能")
+    Component(electricModule, "Electric Controller", "电价模块")
+    Component(deviceModule, "Device Controller", "设备模块")
+    Component(HvacEnergyBlModule, "HvacEnergyBl Controller", "暖通空调模块")
+    Component(DerModule, "Der Controller", "下控设备功能")
+}
+
+Container_Boundary(hardcore, "Hardcore Container") {
+    Component(tagManager, "TagData Controller", "数据管理相关功能")
+}
+
+
+Container_Boundary(fort, "Fort Container") {
+    Component(ticketBff, "Control Controller", "控制下发管理相关功能")
+}
+
+System_Boundary(emaDatabase, "Database") {
+    ContainerDb(emaForecast, "Ema Forecast", "pgsql", "ema 预测配置数据库")
+    ContainerDb(emaDb, "ema", "Pgsql", "ema 主数据库")
+    ContainerDb(energymostDb, "Energymost Database", "sqlserver", "ema 预测配置数据库")
+    ContainerDb(redis, "Redis", "ema 缓存数据库")
+}
+
+ContainerQueue(rabbitMq, "RabbitMq", "消息中间件")
+
+Container(athena, "Athena", "算法服务")
+Container(indie2, "Indie2", "计算服务")
+Container(ant, "Ant", "数据点管理服务")
+Container(abtree, "Abtree", "数据点依赖服务")
+
+' 下控依赖关系
+Rel_D(cuckoo,emaGateway,"调度触发Ema预测算法","")
+Rel_D(emaGateway,emaControl,"转发","")
+Rel_D(emaControl,emaForecast,"查询所有的客户数据","")
+Rel_D(emaControl,emaDb,"查询下控设备相关数据","")
+Rel_D(emaControl,energymostDb,"查询下控点位相关数据","")
+Rel_D(emaControl,tagManager,"获取下控设备对应的tag的数据","")
+Rel_D(emaControl,redis,"缓存上一个时刻的点位数据","")
+Rel_D(emaControl,fort,"下发下控指令","")
+Rel_D(rabbitMq,topicReceiver,"下控记录状态变更","")
+Rel_D(fort,rabbitMq,"下控记录状态变更","")
+
+Rel_R(indie2,emaGateway,"查询设备配置信息","")
+Rel_R(emaGateway,configModule,"转发","")
+' Rel_R(indie2,emaGateway,"查询电价配置","")
+Rel_R(emaGateway,electricModule,"转发","")
+' Rel_R(indie2,emaGateway,"查询设备配置","")
+Rel_R(emaGateway,deviceModule,"转发","")
+' Rel_R(indie2,emaGateway,"查询暖通空调配置","")
+Rel_R(emaGateway,HvacEnergyBlModule,"转发","")
+Rel_L(indie2,athena,"调用预测算法模型","")
+Rel_D(topicReceiver,fort,"变更设备状态","")
+Rel_D(topicReceiver,emaDb,"变更下控记录状态","")
+
+'预测算法配置功能
+Person(configUser, "用户", "配置工程师")
+
+
+' Container_Boundary(userAuth, "UserAuth Container") {
+'     Component(emaControl, "Control Controller", "设备下控相关功能")
+' }
+
+
+'配置依赖关系
+Rel_D(configUser,emaGateway,"维护设备信息","")
+Rel_D(emaGateway,deviceModule,"转发","")
+Rel_D(deviceModule,emaDb,"维护设备信息","")
+Rel_D(deviceModule,fort,"fort维护设备信息","")
+
+Rel_D(configUser,emaGateway,"维护下控设备下控状态和相关点位信息","")
+Rel_D(emaGateway,DerModule,"转发","")
+Rel_D(DerModule,ant,"维护点位信息","")
+Rel_D(DerModule,emaDb,"保存下控设备信息","")
+Rel_D(DerModule,abtree,"保存点位数据","")
+
+
+
+
+
+
+
+
+
+
+
+
+
+@enduml
