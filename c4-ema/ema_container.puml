@@ -71,8 +71,11 @@ Boundary(middleware, "middleware") {
 Boundary(thirdPartySystem, "Third-party Context") {
     System_Ext(gis, "高德地图", "用户获取地图信息")
     System_Ext(oss, "文件管理", "阿里文件存储系统")
+    System_Ext(geo, "和风天气", "和风天气")
     Rel_R(emaUI,gis,"call", "JSON/HTTP")
     Rel_R(userAuth,oss,"call", "JSON/HTTP")
+    ' Rel_R(userAuth,oss,"call", "JSON/HTTP")
+
 }
 
 Boundary(emaDatabase, "Database") {
