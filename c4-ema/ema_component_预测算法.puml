@@ -6,7 +6,7 @@ SHOW_PERSON_OUTLINE()
 
 title Ema 调度算法实现过程
 ' 预测算法相关内容
-Container(cuckoo, "Cuckoo Container","调度模块")
+Container_Ext(cuckoo, "Cuckoo Container","调度模块")
 
 Container(emaGateway, "Ema gateway","网关")
 
@@ -20,14 +20,9 @@ Container_Boundary(ema, "Ema Container") {
     Component(DerModule, "Der Controller", "下控设备功能")
 }
 
-Container_Boundary(hardcore, "Hardcore Container") {
-    Component(tagManager, "TagData Controller", "数据管理相关功能")
-}
+Container_Ext(hardcore, "Hardcore", "数据管理")
 
-
-Container_Boundary(fort, "Fort Container") {
-    Component(ticketBff, "Control Controller", "控制下发管理相关功能")
-}
+Container_Ext(fort, "Fort", "网关服务")
 
 System_Boundary(emaDatabase, "Database") {
     ContainerDb(emaForecast, "Ema Forecast", "pgsql", "ema 预测配置数据库")
@@ -36,12 +31,12 @@ System_Boundary(emaDatabase, "Database") {
     ContainerDb(redis, "Redis", "ema 缓存数据库")
 }
 
-ContainerQueue(rabbitMq, "RabbitMq", "消息中间件")
+ContainerQueue_Ext(rabbitMq, "RabbitMq", "消息中间件")
 
-Container(athena, "Athena", "算法服务")
-Container(indie2, "Indie2", "计算服务")
-Container(ant, "Ant", "数据点管理服务")
-Container(abtree, "Abtree", "数据点依赖服务")
+Container_Ext(athena, "Athena", "算法服务")
+Container_Ext(indie2, "Indie2", "计算服务")
+Container_Ext(ant, "Ant", "数据点管理服务")
+Container_Ext(abtree, "Abtree", "数据点依赖服务")
 
 ' 下控依赖关系
 Rel_D(cuckoo,emaGateway,"调度触发Ema预测算法","")
@@ -49,7 +44,7 @@ Rel_D(emaGateway,emaControl,"转发","")
 Rel_D(emaControl,emaForecast,"查询所有的客户数据","")
 Rel_D(emaControl,emaDb,"查询下控设备相关数据","")
 Rel_D(emaControl,energymostDb,"查询下控点位相关数据","")
-Rel_D(emaControl,tagManager,"获取下控设备对应的tag的数据","")
+Rel_D(emaControl,hardcore,"获取下控设备对应的tag的数据","")
 Rel_D(emaControl,redis,"缓存上一个时刻的点位数据","")
 Rel_D(emaControl,fort,"下发下控指令","")
 Rel_D(rabbitMq,topicReceiver,"下控记录状态变更","")

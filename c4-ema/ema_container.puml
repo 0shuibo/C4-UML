@@ -27,7 +27,7 @@ System_Boundary(emaSystem, "Ema Context") {
 Boundary(emaDatabase, "Database") {
     ContainerDb(emaForecast, "ema forecast", "pgsql", "ema 预测配置数据库")
     ContainerDb(emaDb, "ema", "pgsql", "ema 主数据库")
-    ContainerDb(energymostDb, "Energymost Database", "sqlserver", "ema 预测配置数据库")
+    ContainerDb(energymostDb, "Energymost", "sqlserver", "energymost 数据库")
     ContainerDb(calendar, "Calendar", "日历数据库")
     ContainerDb(redis, "Redis", "ema 缓存数据库")
     Rel_D(ema,redis,"call", "JSON/HTTP")
@@ -64,9 +64,10 @@ Boundary(compSystem, "Comp Context") {
 
     System_Ext(abtree, "Abtree", "点位关系管理")
 
-    System_Ext(vee, "comp-data-quality", "数据质量控制")
+    System_Ext(vee, "vee", "数据质量控制")
 
     Rel_U(ema,abtree,"call", "JSON/HTTP")
+    Rel_D(vee,ema,"call", "JSON/HTTP")
 }
 
 
@@ -91,13 +92,13 @@ Boundary(thirdPartySystem, "Third-party Context") {
     Rel_L(emaUI,gis,"call", "JSON/HTTP")
     Rel_L(userAuth,oss,"call", "JSON/HTTP")
     Rel_L(ema,geo,"call", "JSON/HTTP")
-
 }
 
 
 
 
-Rel_D(customer,emaGateway,"call", "JSON/HTTP")
+Rel_D(customer,AuthUI,"call", "JSON/HTTP")
+Rel_D(customer,emaUI,"call", "JSON/HTTP")
 Rel_D(customer,vee,"call", "JSON/HTTP")
 
 Rel_D(userAuth,oceanBase,"call", "JSON/HTTP")

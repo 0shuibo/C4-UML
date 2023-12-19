@@ -14,7 +14,7 @@ Person(customer3, Users, "客户")
 System(ema, "ema", "ema system")
 
 
-System_Ext(xiot, "xiot", "Platform Context")
+System_Ext(xiot, "emop", "Platform Context")
 
 System_Ext(compSystem, "Comp Context", "Comp Context")
 
