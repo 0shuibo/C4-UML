@@ -13,7 +13,6 @@ System_Boundary(emaSystem, "Ema Context") {
     Container(ema, "Ema", "ema后端服务")
     Container(AuthUI, "AuthUI", "ema权限管理前端服务")
     Container(userAuth, "UserAuth", "ema权限管理后端服务")
-    Container(veeUi, "VeeUi", "数据质量管理UI")
     Container(emaGateway, "EmaGateway", "ema 网关服务")
 
     Rel_D(emaUI,emaGateway,"call", "JSON/HTTP")
@@ -24,59 +23,6 @@ System_Boundary(emaSystem, "Ema Context") {
     Rel_D(emaGateway,ema,"call", "JSON/HTTP")
 }
 
-
-Boundary(platformSystem, "Platform Context") {
-    System_Ext(atlas, "Atlas", "网关管理")
-    System_Ext(guard, "Guard", "登录和登出")
-    System_Ext(oceanBase, "OceanBase", "用户权限管理")
-    System_Ext(fort, "Fort", "网关管理")
-    System_Ext(ant, "Ant", "数据点管理")
-    System_Ext(hardcore, "Hardcore", "数据管理")
-
-    Rel_D(ema,atlas,"call", "JSON/HTTP")
-    Rel_D(ema,guard,"call", "JSON/HTTP")
-    Rel_D(ema,oceanBase,"call", "JSON/HTTP")
-    Rel_D(ema,fort,"call", "JSON/HTTP")
-    Rel_D(ema,ant,"call", "JSON/HTTP")
-    Rel_D(ema,hardcore,"call", "JSON/HTTP")
-}
-
-Boundary(compSystem, "Comp Context") {
-    System_Ext(fork, "Fork", "消息推送服务")
-    System_Ext(abtree, "Abtree", "点位关系管理")
-    System_Ext(cuckoo, "Cuckoo", "调度系统")
-    System_Ext(vee, "comp-data-quality", "数据质量控制")
-
-    Rel_U(ema,fork,"call", "JSON/HTTP")
-    Rel_U(ema,abtree,"call", "JSON/HTTP")
-    Rel_U(cuckoo,ema,"call", "JSON/HTTP")
-    ' Rel_U(ema,vee,"call", "JSON/HTTP")
-}
-
-
-Boundary(AI&BD, "AI&BD") {
-    System_Ext(athena, "Athena", "算法服务")
-    System_Ext(indie2, "Indie2", "计算服务")
-
-    Rel_U(indie2,ema,"call", "JSON/HTTP")
-    Rel_U(indie2,athena,"call", "JSON/HTTP")
-}
-
-Boundary(middleware, "middleware") {
-    ContainerQueue(rabbitMq, "RabbitMq", "消息中间件")
-    Rel_L(rabbitMq,ema,"call", "JSON/HTTP")
-}
-
-
-Boundary(thirdPartySystem, "Third-party Context") {
-    System_Ext(gis, "高德地图", "用户获取地图信息")
-    System_Ext(oss, "文件管理", "阿里文件存储系统")
-    System_Ext(geo, "和风天气", "和风天气")
-    Rel_R(emaUI,gis,"call", "JSON/HTTP")
-    Rel_R(userAuth,oss,"call", "JSON/HTTP")
-    ' Rel_R(userAuth,oss,"call", "JSON/HTTP")
-
-}
 
 Boundary(emaDatabase, "Database") {
     ContainerDb(emaForecast, "ema forecast", "pgsql", "ema 预测配置数据库")
@@ -94,13 +40,68 @@ Boundary(emaDatabase, "Database") {
 }
 
 
-Rel_D(customer,ema,"call", "JSON/HTTP")
+Boundary(platformSystem, "Platform Context") {
+    System_Ext(atlas, "Atlas", "网关管理")
+    System_Ext(guard, "Guard", "登录和登出")
+    System_Ext(oceanBase, "OceanBase", "用户权限管理")
+    System_Ext(fort, "Fort", "网关管理")
+    System_Ext(ant, "Ant", "数据点管理")
+    System_Ext(hardcore, "Hardcore", "数据管理")
+    System_Ext(cuckoo, "Cuckoo", "调度系统")
+    System_Ext(fork, "Fork", "消息推送服务")
 
+    Rel_D(ema,atlas,"call", "JSON/HTTP")
+    Rel_D(emaGateway,guard,"call", "JSON/HTTP")
+    Rel_D(ema,oceanBase,"call", "JSON/HTTP")
+    Rel_D(ema,fort,"call", "JSON/HTTP")
+    Rel_D(ema,ant,"call", "JSON/HTTP")
+    Rel_D(ema,hardcore,"call", "JSON/HTTP")
+    Rel_U(cuckoo,ema,"call", "JSON/HTTP")
+    Rel_D(ema,fork,"call", "JSON/HTTP")
+}
+
+Boundary(compSystem, "Comp Context") {
+
+    System_Ext(abtree, "Abtree", "点位关系管理")
+
+    System_Ext(vee, "comp-data-quality", "数据质量控制")
+
+    Rel_U(ema,abtree,"call", "JSON/HTTP")
+}
+
+
+Boundary(AI&BD, "AI&BD") {
+    System_Ext(athena, "Athena", "算法服务")
+    System_Ext(indie2, "Indie2", "计算服务")
+
+    Rel_U(indie2,emaGateway,"call", "JSON/HTTP")
+    Rel_U(indie2,athena,"call", "JSON/HTTP")
+}
+
+Boundary(middleware, "middleware") {
+    ContainerQueue_Ext(rabbitMq, "RabbitMq", "消息中间件")
+    Rel_R(rabbitMq,ema,"call", "JSON/HTTP")
+}
+
+
+Boundary(thirdPartySystem, "Third-party Context") {
+    System_Ext(gis, "高德地图", "用户获取地图信息")
+    System_Ext(oss, "文件管理", "阿里文件存储系统")
+    System_Ext(geo, "和风天气", "和风天气")
+    Rel_L(emaUI,gis,"call", "JSON/HTTP")
+    Rel_L(userAuth,oss,"call", "JSON/HTTP")
+    Rel_L(ema,geo,"call", "JSON/HTTP")
+
+}
+
+
+
+
+Rel_D(customer,emaGateway,"call", "JSON/HTTP")
+Rel_D(customer,vee,"call", "JSON/HTTP")
 
 Rel_D(userAuth,oceanBase,"call", "JSON/HTTP")
 Rel_D(userAuth,hardcore,"call", "JSON/HTTP")
-Rel_D(veeUi,vee,"call", "JSON/HTTP")
-
 
 
 @enduml

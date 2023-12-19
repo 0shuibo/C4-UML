@@ -6,31 +6,18 @@ SHOW_PERSON_OUTLINE()
 
 title EcoStruxure Microgrid Advisor
 
-Person(customer, Users, "ema 用户")
+Person(customer1, Users, "配置/现场/开发工程师")
+Person(customer2, Users, "运营人员")
+Person(customer3, Users, "客户")
 
-Boundary(platformSystem, "Platform Context") {
-    System_Ext(atlas, "Atlas", "网关管理")
-    System_Ext(guard, "Guard", "登录和登出")
-    System_Ext(oceanBase, "OceanBase", "用户权限管理")
-    System_Ext(fort, "Fort", "网关管理")
-    System_Ext(ant, "Ant", "数据点管理")
-    System_Ext(hardcore, "Hardcore", "数据管理")
-    System_Ext(cuckoo, "Cuckoo", "调度系统")
-    System_Ext(fork, "Fork", "消息推送服务")
-}
 
 System(ema, "ema", "ema system")
 
-Boundary(compSystem, "Comp Context") {
-    System_Ext(abtree, "Abtree", "点位关系管理")
-    System_Ext(vee, "Vee", "数据质量控制")
-}
 
-Boundary(compSystem, "common service") {
-    System_Ext(fork, "Fork", "消息推送服务")
-    System_Ext(abtree, "Abtree", "点位关系管理")
-    System_Ext(cuckoo, "Cuckoo", "调度系统")
-}
+System_Ext(xiot, "xiot", "Platform Context")
+
+System_Ext(compSystem, "Comp Context", "Comp Context")
+
 
 Boundary(AI&BD, "AI&BD") {
      System_Ext(athena, "Athena", "算法服务")
@@ -44,26 +31,24 @@ Boundary(thirdPartySystem, "Third-party Context") {
     System_Ext(geo, "和风天气", "和风天气")
 }
 
-Rel_D(customer,ema,"call", "JSON/HTTP")
+Rel_D(customer1,ema,"call", "JSON/HTTP")
+Rel_D(customer2,ema,"call", "JSON/HTTP")
+Rel_D(customer3,ema,"call", "JSON/HTTP")
 
-Rel_U(ema,fork,"call", "JSON/HTTP")
-Rel_U(ema,abtree,"call", "JSON/HTTP")
-Rel_U(cuckoo,ema,"call", "JSON/HTTP")
-Rel_U(ema,vee,"call", "JSON/HTTP")
 
 Rel_R(ema,gis,"call", "JSON/HTTP")
 Rel_R(ema,geo,"call", "JSON/HTTP")
 Rel_R(ema,oss,"call", "JSON/HTTP")
 
 Rel_U(indie2,ema,"call", "JSON/HTTP")
-Rel_U(indie2,athena,"call", "JSON/HTTP")
+Rel_L(indie2,athena,"call", "JSON/HTTP")
+Rel_D(ema,compSystem,"call", "JSON/HTTP")
 
 
-Rel_D(ema,atlas,"call", "JSON/HTTP")
-Rel_D(ema,guard,"call", "JSON/HTTP")
-Rel_D(ema,oceanBase,"call", "JSON/HTTP")
-Rel_D(ema,fort,"call", "JSON/HTTP")
-Rel_D(ema,ant,"call", "JSON/HTTP")
-Rel_D(ema,hardcore,"call", "JSON/HTTP")
+
+
+
+
+Rel_D(ema,xiot,"call", "JSON/HTTP")
 
 @enduml
