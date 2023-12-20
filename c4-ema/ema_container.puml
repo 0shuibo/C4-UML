@@ -15,73 +15,74 @@ System_Boundary(emaSystem, "Ema Context") {
     Container(userAuth, "UserAuth", "ema权限管理后端服务")
     Container(emaGateway, "EmaGateway", "ema 网关服务")
 
-    Rel_D(emaUI,emaGateway,"call", "JSON/HTTP")
-    Rel_D(emaGateway,ema,"call", "JSON/HTTP")
-    Rel_D(AuthUI,emaGateway,"call", "JSON/HTTP")
-    Rel_D(emaGateway,userAuth,"call", "JSON/HTTP")
-    Rel_L(userAuth,emaGateway,"call", "JSON/HTTP")
-    Rel_D(emaGateway,ema,"call", "JSON/HTTP")
+    Rel_D(emaUI,emaGateway,"uses", "HTTPS")
+    Rel_D(emaGateway,ema,"uses", "HTTP")
+    Rel_D(AuthUI,emaGateway,"uses", "HTTP")
+    Rel_D(emaGateway,userAuth,"uses", "HTTP")
+    Rel_L(userAuth,emaGateway,"uses", "HTTP")
+    Rel_D(emaGateway,ema,"uses", "HTTP")
 }
 
 
 Boundary(emaDatabase, "Database") {
-    ContainerDb(emaForecast, "ema forecast", "pgsql", "ema 预测配置数据库")
+    ContainerDb(emaForecast, "ema forecast", "pgsql", "ema 天气预测")
     ContainerDb(emaDb, "ema", "pgsql", "ema 主数据库")
     ContainerDb(energymostDb, "Energymost", "sqlserver", "energymost 数据库")
     ContainerDb(calendar, "Calendar", "日历数据库")
     ContainerDb(redis, "Redis", "ema 缓存数据库")
-    Rel_D(ema,redis,"call", "JSON/HTTP")
-    Rel_D(userAuth,redis,"call", "JSON/HTTP")
-    Rel_D(ema,emaDb,"call", "JSON/HTTP")
-    Rel_D(ema,calendar,"call", "JSON/HTTP")
-    Rel_D(ema,emaForecast,"call", "JSON/HTTP")
-    Rel_D(ema,energymostDb,"call", "JSON/HTTP")
+    Rel_D(ema,redis,"Reads/Writes")
+    Rel_D(userAuth,redis,"Reads/Writes")
+    Rel_D(ema,emaDb,"Reads/Writes")
+    Rel_D(ema,calendar,"Reads/Writes")
+    Rel_D(ema,emaForecast,"Reads/Writes")
+    Rel_D(ema,energymostDb,"Reads/Writes")
 
 }
 
 
 Boundary(platformSystem, "Platform Context") {
-    System_Ext(atlas, "Atlas", "网关管理")
+    System_Ext(atlas, "Atlas", "网关授权")
     System_Ext(guard, "Guard", "登录和登出")
     System_Ext(oceanBase, "OceanBase", "用户权限管理")
-    System_Ext(fort, "Fort", "网关管理")
+    System_Ext(fort, "Fort", "网关管理、设备下控")
     System_Ext(ant, "Ant", "数据点管理")
     System_Ext(hardcore, "Hardcore", "数据管理")
     System_Ext(cuckoo, "Cuckoo", "调度系统")
     System_Ext(fork, "Fork", "消息推送服务")
 
-    Rel_D(ema,atlas,"call", "JSON/HTTP")
-    Rel_D(emaGateway,guard,"call", "JSON/HTTP")
-    Rel_D(ema,oceanBase,"call", "JSON/HTTP")
-    Rel_D(ema,fort,"call", "JSON/HTTP")
-    Rel_D(ema,ant,"call", "JSON/HTTP")
-    Rel_D(ema,hardcore,"call", "JSON/HTTP")
-    Rel_U(cuckoo,ema,"call", "JSON/HTTP")
-    Rel_D(ema,fork,"call", "JSON/HTTP")
+    Rel_D(ema,atlas,"uses", "HTTP")
+    Rel_D(emaGateway,guard,"uses", "HTTP")
+    Rel_D(ema,oceanBase,"uses", "HTTP")
+    Rel_D(ema,fort,"uses", "HTTP")
+    Rel_D(ema,ant,"uses", "HTTP")
+    Rel_D(ema,hardcore,"uses", "HTTP")
+    Rel_U(cuckoo,ema,"uses", "HTTP")
+    Rel_D(ema,fork,"uses", "HTTP")
 }
 
 Boundary(compSystem, "Comp Context") {
 
-    System_Ext(abtree, "Abtree", "点位关系管理")
+    Container_Ext(abtree, "Abtree", "点位关系管理")
 
     System_Ext(vee, "vee", "数据质量控制")
 
-    Rel_U(ema,abtree,"call", "JSON/HTTP")
-    Rel_D(vee,ema,"call", "JSON/HTTP")
+    Rel_U(ema,abtree,"uses", "HTTP")
+    Rel_D(vee,ema,"uses", "HTTP")
 }
 
 
-Boundary(AI&BD, "AI&BD") {
-    System_Ext(athena, "Athena", "算法服务")
-    System_Ext(indie2, "Indie2", "计算服务")
+Boundary(AI&BD, "AI&BigData") {
+    Container_Ext(athena, "Athena", "算法服务")
+    Container_Ext(indie2, "Indie2", "计算服务")
 
-    Rel_U(indie2,emaGateway,"call", "JSON/HTTP")
-    Rel_U(indie2,athena,"call", "JSON/HTTP")
+    Rel_U(indie2,emaGateway,"uses", "HTTP")
+    Rel_U(indie2,athena,"uses", "HTTP")
+    Rel_U(indie2,abtree,"uses", "HTTP")
 }
 
 Boundary(middleware, "middleware") {
-    ContainerQueue_Ext(rabbitMq, "RabbitMq", "消息中间件")
-    Rel_R(rabbitMq,ema,"call", "JSON/HTTP")
+    SystemQueue_Ext(rabbitMq, "RabbitMq", "消息中间件")
+    Rel_R(rabbitMq,ema,"uses", "AMQP")
 }
 
 
@@ -89,20 +90,20 @@ Boundary(thirdPartySystem, "Third-party Context") {
     System_Ext(gis, "高德地图", "用户获取地图信息")
     System_Ext(oss, "文件管理", "阿里文件存储系统")
     System_Ext(geo, "和风天气", "和风天气")
-    Rel_L(emaUI,gis,"call", "JSON/HTTP")
-    Rel_L(userAuth,oss,"call", "JSON/HTTP")
-    Rel_L(ema,geo,"call", "JSON/HTTP")
+    Rel_L(emaUI,gis,"uses", "HTTPS")
+    Rel_L(AuthUI,oss,"uses", "HTTPS")
+    Rel_L(ema,geo,"uses", "HTTPS")
 }
 
 
 
 
-Rel_D(customer,AuthUI,"call", "JSON/HTTP")
-Rel_D(customer,emaUI,"call", "JSON/HTTP")
-Rel_D(customer,vee,"call", "JSON/HTTP")
+Rel_D(customer,AuthUI,"uses", "HTTPS")
+Rel_D(customer,emaUI,"uses", "HTTPS")
+Rel_D(emaUI,vee,"uses", "HTTPS")
 
-Rel_D(userAuth,oceanBase,"call", "JSON/HTTP")
-Rel_D(userAuth,hardcore,"call", "JSON/HTTP")
+Rel_D(userAuth,oceanBase,"uses", "HTTP")
+Rel_D(userAuth,hardcore,"uses", "HTTP")
 
 
 @enduml

@@ -25,9 +25,9 @@ Container_Ext(hardcore, "Hardcore", "数据管理")
 Container_Ext(fort, "Fort", "网关服务")
 
 System_Boundary(emaDatabase, "Database") {
-    ContainerDb(emaForecast, "Ema Forecast", "pgsql", "ema 预测配置数据库")
+    ContainerDb(emaForecast, "Ema Forecast", "pgsql", "ema 天气预测")
     ContainerDb(emaDb, "ema", "Pgsql", "ema 主数据库")
-    ContainerDb(energymostDb, "Energymost Database", "sqlserver", "ema 预测配置数据库")
+    ContainerDb(energymostDb, "Energymost ", "sqlserver", "ema 预测配置数据库")
     ContainerDb(redis, "Redis", "ema 缓存数据库")
 }
 
@@ -39,8 +39,8 @@ Container_Ext(ant, "Ant", "数据点管理服务")
 Container_Ext(abtree, "Abtree", "数据点依赖服务")
 
 ' 下控依赖关系
-Rel_D(cuckoo,emaGateway,"调度触发Ema预测算法","")
-Rel_D(emaGateway,emaControl,"转发","")
+Rel_D(cuckoo,emaControl,"调度触发Ema预测算法","")
+' Rel_D(emaGateway,emaControl,"分发","")
 Rel_D(emaControl,emaForecast,"查询所有的客户数据","")
 Rel_D(emaControl,emaDb,"查询下控设备相关数据","")
 Rel_D(emaControl,energymostDb,"查询下控点位相关数据","")
@@ -50,20 +50,17 @@ Rel_D(emaControl,fort,"下发下控指令","")
 Rel_D(rabbitMq,topicReceiver,"下控记录状态变更","")
 Rel_D(fort,rabbitMq,"下控记录状态变更","")
 
-Rel_R(indie2,emaGateway,"查询设备配置信息","")
-Rel_R(emaGateway,configModule,"转发","")
-' Rel_R(indie2,emaGateway,"查询电价配置","")
-Rel_R(emaGateway,electricModule,"转发","")
-' Rel_R(indie2,emaGateway,"查询设备配置","")
-Rel_R(emaGateway,deviceModule,"转发","")
-' Rel_R(indie2,emaGateway,"查询暖通空调配置","")
-Rel_R(emaGateway,HvacEnergyBlModule,"转发","")
+Rel_R(indie2,configModule,"查询设备配置信息","")
+
+Rel_D(indie2,electricModule,"查询电价配置","")
+Rel_D(indie2,deviceModule,"查询设备配置","")
+Rel_D(indie2,HvacEnergyBlModule,"查询暖通空调配置","")
 Rel_L(indie2,athena,"调用预测算法模型","")
 Rel_D(topicReceiver,fort,"变更设备状态","")
 Rel_D(topicReceiver,emaDb,"变更下控记录状态","")
 
 '预测算法配置功能
-Person(configUser, "用户", "配置工程师")
+' Person(configUser, "用户", "配置工程师")
 
 
 ' Container_Boundary(userAuth, "UserAuth Container") {
@@ -72,13 +69,13 @@ Person(configUser, "用户", "配置工程师")
 
 
 '配置依赖关系
-Rel_D(configUser,emaGateway,"维护设备信息","")
-Rel_D(emaGateway,deviceModule,"转发","")
+' Rel_D(configUser,emaGateway,"维护设备信息","")
+Rel_D(emaGateway,deviceModule,"分发","")
 Rel_D(deviceModule,emaDb,"维护设备信息","")
 Rel_D(deviceModule,fort,"fort维护设备信息","")
 
-Rel_D(configUser,emaGateway,"维护下控设备下控状态和相关点位信息","")
-Rel_D(emaGateway,DerModule,"转发","")
+' Rel_D(configUser,emaGateway,"维护下控设备下控状态和相关点位信息","")
+Rel_D(emaGateway,DerModule,"分发","")
 Rel_D(DerModule,ant,"维护点位信息","")
 Rel_D(DerModule,emaDb,"保存下控设备信息","")
 Rel_D(DerModule,abtree,"保存点位数据","")
@@ -86,11 +83,11 @@ Rel_D(DerModule,abtree,"保存点位数据","")
 
 
 ' 点位模板配置
-Person(developer, "Developer", "产品&开发工程师")
+' Person(developer, "Developer", "产品&开发工程师")
 
 Component(tagBuilder, "Tag Builder", "点位模板工具")
 
-Rel_D(developer,tagBuilder,"维护点位模板和公式","")
+' Rel_D(developer,tagBuilder,"维护点位模板和公式","")
 Rel_D(tagBuilder,emaDb,"维护点位模板和公式","")
 
 

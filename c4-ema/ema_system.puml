@@ -1,13 +1,15 @@
 @startuml energy_hub_system
 !include ../C4_Context.puml
+!include ../C4_Container.puml
 
 LAYOUT_TOP_DOWN()
 SHOW_PERSON_OUTLINE()
 
 title EcoStruxure Microgrid Advisor
 
-Person(customer1, Users, "配置/现场/开发工程师")
 Person(customer2, Users, "运营人员")
+Person(customer1, Users, "配置工程师")
+Person(customer4, Users, "现场工程师")
 Person(customer3, Users, "客户")
 
 
@@ -16,13 +18,13 @@ System(ema, "ema", "ema system")
 
 System_Ext(xiot, "emop", "Platform Context")
 
-System_Ext(compSystem, "Comp Context", "Comp Context")
+Container_Ext(abtree, "Abtree", "点位关系管理")
+
+System_Ext(vee, "vee", "数据质量控制")
 
 
-Boundary(AI&BD, "AI&BD") {
-     System_Ext(athena, "Athena", "算法服务")
-     System_Ext(indie2, "Indie2", "计算服务")
-}
+System_Ext(athena, "AI算法服务", "")
+System_Ext(indie2, "数据计算", "")
 
 
 Boundary(thirdPartySystem, "Third-party Context") {
@@ -31,24 +33,29 @@ Boundary(thirdPartySystem, "Third-party Context") {
     System_Ext(geo, "和风天气", "和风天气")
 }
 
-Rel_D(customer1,ema,"call", "JSON/HTTP")
-Rel_D(customer2,ema,"call", "JSON/HTTP")
-Rel_D(customer3,ema,"call", "JSON/HTTP")
+' SystemQueue_Ext(rabbitMq, "RabbitMq", "消息中间件")
+' Rel_R(rabbitMq,ema,"uses", "AMQP")
+
+Rel_D(customer1,ema,"uses", "HTTPS")
+Rel_D(customer2,ema,"uses", "HTTPS")
+Rel_D(customer3,ema,"uses", "HTTPS")
+Rel_D(customer4,ema,"uses", "HTTPS")
 
 
-Rel_R(ema,gis,"call", "JSON/HTTP")
-Rel_R(ema,geo,"call", "JSON/HTTP")
-Rel_R(ema,oss,"call", "JSON/HTTP")
+Rel_R(ema,gis,"uses", "HTTPS")
+Rel_R(ema,geo,"uses", "HTTPS")
+Rel_R(ema,oss,"uses", "HTTPS")
 
-Rel_U(indie2,ema,"call", "JSON/HTTP")
-Rel_L(indie2,athena,"call", "JSON/HTTP")
-Rel_D(ema,compSystem,"call", "JSON/HTTP")
-
-
-
+Rel_U(indie2,ema,"uses", "HTTP")
+Rel_L(indie2,athena,"uses", "HTTP")
+Rel_D(ema,abtree,"uses", "HTTP")
+Rel_U(vee,ema,"uses", "HTTP")
 
 
 
-Rel_D(ema,xiot,"call", "JSON/HTTP")
+
+
+Rel_D(ema,xiot,"uses", "HTTP")
+Rel_D(customer1,xiot,"uses", "HTTPS")
 
 @enduml
